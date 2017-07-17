@@ -7,12 +7,25 @@ import re
 
 
 
-# For domestic cats
-def getCatFacts():
-    html = urlopen("http://en.wikipedia.org/wiki/Cat")
+# For any cat
+def showCatFact(url):
+    html = urlopen("http://en.wikipedia.org" + url)
     bsObj = BeautifulSoup(html, "html.parser")
-    catFacts = bsObj.findAll("p")
-    return catFacts
+
+    # Name of cat
+    catName = bsObj.find("h1").get_text()
+
+    # list of a <p> elements on page
+    catFactList = bsObj.findAll("p")
+
+    catFactSingle = re.sub(r'\[\d+\]', '', catFactList[random.randint(0, len(catFactList) - 1)].get_text())
+
+
+    print(catName)
+    print()
+    print(catFactSingle)
+
+
 
 def getCatList():
     html = urlopen("http://en.wikipedia.org/wiki/Felidae")
@@ -29,22 +42,18 @@ def getCatList():
 
 def main():
     random.seed(datetime.datetime.now())
-    # moreFacts = "y"
-    #
-    # allCatFacts = getCatFacts()
-    #
-    #
-    #
-    # while(moreFacts == "y"):
-    #
-    #
-    #     singleFact = re.sub(r'\[\d+\]', '', allCatFacts[random.randint(0, len(allCatFacts) - 1)].get_text())
-    #
-    #     print(singleFact)
-    #     print("\n")
-    #     moreFacts = input("continue (y/n)?: ")
+    moreFacts = "y"
 
-    getCatList()
+
+
+
+
+    while(moreFacts == "y"):
+        catUrls = getCatList()
+        showCatFact(catUrls[random.randint(0, len(catUrls) - 1)])
+        moreFacts = input("continue (y/n)?: ")
+
+
         
 
 main()
