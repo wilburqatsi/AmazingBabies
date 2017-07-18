@@ -16,7 +16,7 @@ def showCatFact(url):
     catName = bsObj.find("h1").get_text()
 
     # list of a <p> elements on page
-    catFactList = bsObj.findAll("p")
+    catFactList = bsObj.find("div", {"class":"mw-parser-output"}).findAll("p", recursive = False)
 
     catFactSingle = re.sub(r'\[\d+\]', '', catFactList[random.randint(0, len(catFactList) - 1)].get_text())
 
@@ -24,6 +24,18 @@ def showCatFact(url):
     print(catName)
     print()
     print(catFactSingle)
+
+def getCatPic(url):
+    html = urlopen("http://en.wikipedia.org" + url)
+    bsObj = BeautifulSoup(html, "html.parser")
+
+    catPicLink = bsObj.find("a", {"class":"image"}).attrs["href"]
+    catImageHtml = urlopen("http://en.wikipedia.org" + catPicLink)
+    catImageObj = BeautifulSoup(catImageHtml, "html.parser")
+
+    catPic = catImageObj.find("a", {"class": "internal"}).attrs["href"]
+
+    return "https:" + catPic
 
 
 
@@ -41,17 +53,19 @@ def getCatList():
 
 
 def main():
-    random.seed(datetime.datetime.now())
-    moreFacts = "y"
+    # random.seed(datetime.datetime.now())
+    # moreFacts = "y"
+    #
+    #
+    #
+    #
+    #
+    # while(moreFacts == "y"):
+    #     catUrls = getCatList()
+    #     showCatFact(catUrls[random.randint(0, len(catUrls) - 1)])
+    #     moreFacts = input("continue (y/n)?: ")
 
-
-
-
-
-    while(moreFacts == "y"):
-        catUrls = getCatList()
-        showCatFact(catUrls[random.randint(0, len(catUrls) - 1)])
-        moreFacts = input("continue (y/n)?: ")
+    print(getCatPic("/wiki/Bay_cat"))
 
 
         
