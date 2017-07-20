@@ -7,67 +7,59 @@ import re
 
 
 
-# For any cat
-def showCatFact(url):
-    html = urlopen("http://en.wikipedia.org" + url)
-    bsObj = BeautifulSoup(html, "html.parser")
-
-    # Name of cat
-    catName = bsObj.find("h1").get_text()
-
-    # list of a <p> elements on page
-    catFactList = bsObj.find("div", {"class":"mw-parser-output"}).findAll("p", recursive = False)
-
-    catFactSingle = re.sub(r'\[\d+\]', '', catFactList[random.randint(0, len(catFactList) - 1)].get_text())
+class CatFacts:
 
 
-    print(catName)
-    print()
-    print(catFactSingle)
+    def __init__(self):
+        felidae_html = urlopen("http://en.wikipedia.org/wiki/Felidae")
+        felidae_bsObj = BeautifulSoup(felidae_html, "html.parser")
 
-def getCatPic(url):
-    html = urlopen("http://en.wikipedia.org" + url)
-    bsObj = BeautifulSoup(html, "html.parser")
+        self.catUrl = []
+        catList = felidae_bsObj.find("table", {"cellspacing": "0"}). \
+            findAll("a", {"class": "mw-redirect", "href": re.compile("^(/wiki/)((?!:).)*$")})
+        for link in catList:
+            self.catUrl.append(link.attrs["href"])
 
-    catPicLink = bsObj.find("a", {"class":"image"}).attrs["href"]
-    catImageHtml = urlopen("http://en.wikipedia.org" + catPicLink)
-    catImageObj = BeautifulSoup(catImageHtml, "html.parser")
+        currentCat = self.catUrl[random.randint(0, len(self.catUrl) - 1)]
 
-    catPic = catImageObj.find("a", {"class": "internal"}).attrs["href"]
+        currentHTML = urlopen("http://en.wikipedia.org" + currentCat)
 
-    return "https:" + catPic
+        self.currentPage = BeautifulSoup(currentHTML, "html.parser")
 
 
 
-def getCatList():
-    html = urlopen("http://en.wikipedia.org/wiki/Felidae")
 
-    catUrl = []
-    bsObj = BeautifulSoup(html, "html.parser")
-    catList = bsObj.find("table", {"cellspacing": "0"}). \
-        findAll("a", {"class": "mw-redirect", "href": re.compile("^(/wiki/)((?!:).)*$")})
-    for link in catList:
-        catUrl.append(link.attrs["href"])
-    return catUrl
 
+    def getCatName(self):
+        return self.currentPage.find("h1").get_text()
+
+
+
+    def getCatFact(self):
+
+        # list of a <p> elements on page
+        catFactList = self.currentPage.find("div", {"class": "mw-parser-output"}).findAll("p", recursive=False)
+
+        return re.sub(r'\[\d+\]', '', catFactList[random.randint(0, len(catFactList) - 1)].get_text())
+
+
+    def getCatPic(self):
+        catPicLink = self.currentPage.find("a", {"class": "image"}).attrs["href"]
+        catImageHtml = urlopen("http://en.wikipedia.org" + catPicLink)
+        catImageObj = BeautifulSoup(catImageHtml, "html.parser")
+
+        return "https:" + catImageObj.find("a", {"class": "internal"}).attrs["href"]
+
+    def setRandomCat(self):
+        self.currentPage = self.catUrl[random.randint(0, len(self.catUrl) - 1)]
 
 
 def main():
-    # random.seed(datetime.datetime.now())
-    # moreFacts = "y"
-    #
-    #
-    #
-    #
-    #
-    # while(moreFacts == "y"):
-    #     catUrls = getCatList()
-    #     showCatFact(catUrls[random.randint(0, len(catUrls) - 1)])
-    #     moreFacts = input("continue (y/n)?: ")
-
-    print(getCatPic("/wiki/Bay_cat"))
-
-
-        
+    newCat = CatFacts()
+    print(newCat.getCatName())
+    print()
+    print(newCat.getCatFact())
+    print()
+    print(newCat.getCatPic())
 
 main()
